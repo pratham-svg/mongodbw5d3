@@ -1,8 +1,8 @@
 const express = require('express');
-const myHelper = require('../util/helper')
+// const myHelper = require('../util/helper')
 const usermodel = require('../models/usermodel.js')
 const usercontroler = require('../controler/usercontroler')
-
+const moment = require('moment');
 const router = express.Router();
 
 router.get('/test-me', function (req, res) {
@@ -28,6 +28,46 @@ router.get("/bookList", async function(req,res)
    console.log(allUser)
    res.send({msd : allUser})
 })
+router.get("/bookLista1", async function(req,res)
+{
+   let allUser = await usermodel.find()
+   const d = new Date();
+   const a = d.split("-")
+   if(allUser && allUser.length != 0 ) {res.send({msd : allUser})}
+   else{  console.log(allUser) 
+      res.send({msg : "no books are found"})}
+})
+router.post("/bookLista1", async function(req,res)
+{  
+   let data = req.body
+   let allUser = await usermodel.updateMany({BookName : "abcd"},//condition
+      { $set: data },
+      // {new : true},
+      {upsert : true}  ) //for updated document 
+      
+      res.send({msg :allUser})
+ 
+})
+router.get("/momentapi", async function(req,res)
+{  
+   const today = moment();
+   console.log(today.format("DD-MM-YYYY"));
+   const datea = moment("15-10-2041","DD-MM-YYYY")
+   const dateb = moment("30-11-2045","DD-MM-YYYY")
+   console.log('Difference is ', dateb.diff(datea), 'days');
+   res.send({msg : today.format("DD-MM-YYYY")})
+ 
+})
+router.get("/deletedbooks", async function(req,res)
+{  
+   let data = req.body
+   let allUser = await usermodel.updateMany({BookName : "abcd"},//condition
+      { $set: {isDeleted : true} },
+      {new : true} ) 
+      res.send({msg :allUser})
+ 
+})
+
 router.post("/geBooksInYear", async function(req,res)
 {  
    let year = req.query.year;
