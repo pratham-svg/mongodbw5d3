@@ -22,20 +22,37 @@ router.get("/get_user", async function(req,res)
    console.log(allUser)
    res.send({msd : allUser})
 })
-// let a = [ 10,20,23,1,5,50]
-// router.get("/query:number", async function(req,res)
-// {
-//    let b = req.query.number
-//    let s = []
-//    for(let i =0; i<a.length;i++)
-//    {
-//       if(b>a[i])
-//       {
-//         s.push(a[i])
-//       }
-//    }
-//    res.send({msd : s})
-// })
+router.get("/bookList", async function(req,res)
+{
+   let allUser = await usermodel.find().select({ BookName : 1 , AuthorName : 1 , _id : 0})
+   console.log(allUser)
+   res.send({msd : allUser})
+})
+router.post("/geBooksInYear", async function(req,res)
+{  
+   let year = req.query.year;
+   let allUser = await usermodel.find({ year : year })
+   console.log(allUser)
+   res.send({msd : allUser})
+})
+router.get("/getXINRBooks", async function(req,res)
+{  
+   let allUser = await usermodel.find({price : {$in: [199,95,125]}})
+   console.log(allUser)
+   res.send({msd : allUser})
+})
+router.get("/getRandomBooks", async function(req,res)
+{  
+   let allUser = await usermodel.find(   { pages : { $gt: 200 } })
+   console.log(allUser)
+   res.send({msd : allUser})
+})
+router.get("/getParticularBooks", async function(req,res)
+{  
+   let allUser = await usermodel.find(   { $or :[ { BookName : "Journey to the Centre of the Earth" },{ year: 2018 } ]})
+   console.log(allUser)
+   res.send({msd : allUser})
+})
 
 module.exports = router;
 // adding this comment for no reason
