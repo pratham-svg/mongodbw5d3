@@ -1,32 +1,47 @@
 const express = require('express');
 // const myHelper = require('../util/helper')
-const usermodel = require('../models/usermodel.js')
+const usermodel = require('../models/data_book.js')
 const usercontroler = require('../controler/usercontroler')
+const author = require('../authorschema/author')
 const moment = require('moment');
+const data_book = require('../models/data_book.js');
 const router = express.Router();
 
 router.get('/test-me', function (req, res) {
  
     res.send('My first ever api!')
 });
-router.post("/create_user", usercontroler.create_user )
+router.post("/create_books", usercontroler.create_user )
+router.post("/create_author", usercontroler.create_author )
   
 
-router.get("/get_user", async function(req,res)
-{
-//    let allUser = await usermodel.find({ $or: [{ sales: 10 },{ authorName : "pratham"}] } ).select({ bookName : 1 , authorName : 1, _id : 0})
-// let allUser = await usermodel.find({ $or: [{ sales: 10 },{ authorName : "pratham"}] } ).skip(1).sort({sales : -1}).limit(3).select({ bookName : 1 , authorName : 1, _id : 0})
-  // let allUser = await usermodel.find( {sales : {$gt: 10 , $lt : 90}}).select({sales : 1 , bookName : 1, _id : 0})
-//   let allUser = await usermodel.update( {sales : {$gt : 60}}  ,{ $set: { ispublished : true} })
-   
-   console.log(allUser)
-   res.send({msd : allUser})
-})
 router.get("/bookList", async function(req,res)
-{
-   let allUser = await usermodel.find().select({ BookName : 1 , AuthorName : 1 , _id : 0})
-   console.log(allUser)
-   res.send({msd : allUser})
+{  
+   let authora = await author.find( {  author_name : "Chetan Bhagat" }).select({ "author_id": 1 , _id : 0})
+   let bookas = await data_book.find({ "author_id": authora[0].author_id }).select({
+      name :
+      1 , _id : 0})
+   console.log(authora[0].author_id)
+
+   res.send({msd : bookas})
+})
+router.get("/twostate", async function(req,res)
+{  
+   let bookas = await data_book.updateMany( {name : "Two states" } ,{ $set : {price : 100 }}).find().select({_id : 0,price : 1})
+   let id = await data_book.find({name : "Two states" })
+   let authorb_id = id[0].author_id
+   let authora_id = await author.find( {author_id : authorb_id} ).select( { author_name : 1,_id : 0})
+   console.log(authora_id) 
+   let updated_price_author_name = authora_id.concat(bookas);
+   
+   res.send({msd : updated_price_author_name })
+})
+router.get("/update_prize", async function(req,res)
+{  
+   let update_prize = (await data_book.find( { price : { $gte: 50, $lte: 100} } ).select({ author_id :1,_id : 0})).map(x => x =x.author_id)
+   let unique_id = [...new Set(update_prize)];
+   let author_name = await author.find( { author_id : { $in : unique_id } } ).select({author_name:  1,_id : 0})
+   res.send({date : author_name})
 })
 router.get("/bookLista1", async function(req,res)
 {
